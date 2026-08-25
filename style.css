@@ -1,0 +1,319 @@
+:root{
+  --surface:      #FFFFFF;
+  --surface-90:   rgba(255,255,255,.97);
+  --ink:          #202124;
+  --ink-soft:     #5F6368;
+  --border:       #DADCE0;
+  --blue:         #1A73E8;
+  --blue-soft:    rgba(26,115,232,.14);
+  --red:          #EA4335;
+  --shadow:       0 1px 2px rgba(0,0,0,.16), 0 2px 8px rgba(0,0,0,.14);
+  --shadow-sm:    0 1px 3px rgba(0,0,0,.22);
+  --radius:       8px;
+  font-family: 'Roboto', Arial, sans-serif;
+}
+
+*{ box-sizing: border-box; margin:0; padding:0; }
+
+html, body{
+  width:100%; height:100%; overflow:hidden;
+  background:#0d0d0d;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#panorama{ position:absolute; inset:0; width:100%; height:100%; }
+
+/* kill pannellum's stock chrome — we build our own */
+.pnlm-load-box, .pnlm-controls-container, .pnlm-compass, .pnlm-about-msg{ display:none !important; }
+.pnlm-container{ background:#0d0d0d; }
+
+/* ---------- Loader (Google 4-colour spinner) ---------- */
+#tour-loader{
+  position:absolute; inset:0; z-index:50;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:16px;
+  background:var(--surface);
+  color:var(--ink-soft);
+  font-size:.85rem;
+  transition:opacity .4s ease;
+}
+#tour-loader.hide{ opacity:0; pointer-events:none; }
+.loader-mark{
+  width:34px; height:34px;
+  border-radius:50%;
+  border:3.5px solid transparent;
+  border-top-color:var(--blue);
+  border-right-color:var(--red);
+  border-bottom-color:#FBBC05;
+  border-left-color:#34A853;
+  animation:spin .9s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+/* ---------- Place card (top-left) ---------- */
+#place-card{
+  position:absolute; top:16px; left:16px; z-index:20;
+  display:flex; align-items:stretch;
+  background:var(--surface-90);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  pointer-events:none;
+  max-width:78vw;
+}
+#place-card-main{ padding:12px 16px; }
+#property-name{
+  font-size:1rem; font-weight:500;
+  color:var(--ink);
+  line-height:1.25;
+}
+#property-address{
+  margin-top:3px;
+  display:flex; align-items:center; gap:5px;
+  font-size:.78rem; color:var(--ink-soft);
+}
+#property-address svg{
+  width:13px; height:13px;
+  fill:var(--red); flex:0 0 auto;
+}
+#place-card-crumb{
+  display:flex; align-items:center;
+  padding:0 16px;
+  background:#F1F3F4;
+  border-left:1px solid var(--border);
+}
+#scene-name{
+  font-size:.78rem; font-weight:500;
+  color:var(--blue);
+  white-space:nowrap;
+}
+
+/* ---------- Compass (top-right) ---------- */
+#compass{
+  position:absolute; top:16px; right:16px; z-index:21;
+  width:48px; height:48px;
+  background:var(--surface);
+  border:none;
+  border-radius:50%;
+  box-shadow:var(--shadow);
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition: box-shadow .15s ease;
+}
+#compass:hover{ box-shadow:var(--shadow-sm), 0 0 0 6px rgba(0,0,0,.04); }
+#compass svg{ width:100%; height:100%; }
+.compass-ring{ fill:none; stroke:var(--border); stroke-width:1; }
+.compass-n{
+  font-size:7px; font-weight:700; fill:var(--ink-soft);
+  text-anchor:middle; font-family:'Roboto', Arial, sans-serif;
+}
+.compass-needle{
+  fill:var(--red);
+  transform-origin: 22px 22px;
+  transition: transform .05s linear;
+}
+
+/* ---------- Right-side icon rail ---------- */
+#icon-rail{
+  position:absolute; top:72px; right:16px; z-index:20;
+  display:flex; flex-direction:column; gap:8px;
+}
+.icon-btn{
+  width:40px; height:40px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--surface);
+  border:none;
+  border-radius:50%;
+  box-shadow:var(--shadow);
+  cursor:pointer;
+  transition: background .15s ease, transform .15s ease;
+}
+.icon-btn svg{
+  width:19px; height:19px;
+  fill:none; stroke:var(--ink-soft); stroke-width:1.9;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+.icon-btn:hover{ background:#F1F3F4; }
+.icon-btn:active{ transform:scale(.94); }
+.icon-btn.active{ background:var(--blue); }
+.icon-btn.active svg{ stroke:#fff; }
+
+/* ---------- Zoom stack (bottom-right, Maps-style capsule) ---------- */
+#zoom-stack{
+  position:absolute; bottom:110px; right:16px; z-index:20;
+  display:flex; flex-direction:column;
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+#zoom-stack .icon-btn{
+  border-radius:0;
+  box-shadow:none;
+  width:40px; height:36px;
+}
+#zoom-stack .icon-btn:first-child{ border-bottom:1px solid var(--border); }
+
+/* ---------- Drag hint ---------- */
+#drag-hint{
+  position:absolute; left:50%; top:50%; z-index:15;
+  transform:translate(-50%,-50%);
+  padding:8px 18px;
+  background:rgba(32,33,36,.82);
+  border-radius:20px;
+  color:#fff;
+  font-size:.78rem;
+  opacity:1; transition:opacity .6s ease;
+  pointer-events:none;
+}
+#drag-hint.hide{ opacity:0; }
+
+/* ---------- Pegman-style ground hotspots ---------- */
+.wayfinder-hotspot{
+  width:42px; height:42px;
+  border-radius:50%;
+  background:rgba(255,255,255,.92);
+  border:2px solid var(--blue);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  position:relative;
+  box-shadow:0 2px 6px rgba(0,0,0,.35);
+  transition: background .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+.wayfinder-hotspot::after{
+  content:'';
+  position:absolute; left:50%; bottom:-9px;
+  width:34px; height:10px;
+  transform:translateX(-50%);
+  background:radial-gradient(ellipse at center, rgba(0,0,0,.35), transparent 70%);
+  border-radius:50%;
+  z-index:-1;
+}
+.wayfinder-hotspot::before{
+  content:'';
+  position:absolute; inset:-6px;
+  border-radius:50%;
+  border:1.5px solid rgba(26,115,232,.45);
+  animation:pulse-ring 2s ease-out infinite;
+}
+.wayfinder-hotspot svg{
+  width:17px; height:17px;
+  fill:var(--blue); stroke:none;
+}
+.wayfinder-hotspot:hover{
+  background:var(--blue);
+  transform:scale(1.1);
+  box-shadow:0 3px 10px rgba(0,0,0,.45);
+}
+.wayfinder-hotspot:hover svg{ fill:#fff; }
+.wayfinder-hotspot .wf-label{
+  position:absolute; top:52px; left:50%; transform:translateX(-50%);
+  white-space:nowrap;
+  padding:5px 12px;
+  background:rgba(32,33,36,.9);
+  border-radius:6px;
+  font-size:.72rem;
+  color:#fff;
+  opacity:0; pointer-events:none;
+  transition:opacity .18s ease;
+}
+.wayfinder-hotspot:hover .wf-label{ opacity:1; }
+
+@keyframes pulse-ring{
+  0%{ transform:scale(1); opacity:.85; }
+  100%{ transform:scale(1.7); opacity:0; }
+}
+
+/* ---------- Floor-plan mini-map ---------- */
+#map-panel{
+  position:absolute; top:120px; right:16px; z-index:19;
+  width:210px;
+  padding:14px;
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  opacity:0; transform:translateY(-8px) scale(.97);
+  pointer-events:none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+#map-panel.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+#map-title{
+  font-size:.7rem; font-weight:500; letter-spacing:.03em; text-transform:uppercase;
+  color:var(--ink-soft);
+  margin-bottom:10px;
+}
+#map-svg{ width:100%; height:auto; display:block; overflow:visible; }
+.map-link{ stroke:var(--border); stroke-width:1.4; }
+.map-node{ cursor:pointer; }
+.map-node circle{
+  fill:#fff; stroke:var(--blue); stroke-width:1.6;
+  transition: fill .2s ease;
+}
+.map-node.current circle{ fill:var(--blue); }
+.map-node text{
+  font-size:4.4px; fill:var(--ink); text-anchor:middle;
+}
+.map-node.current text{ fill:var(--blue); font-weight:700; }
+
+/* ---------- Filmstrip navigator — contextual, only shows reachable rooms ---------- */
+#filmstrip{
+  position:absolute; bottom:16px; left:50%; z-index:20;
+  transform:translateX(-50%);
+  display:flex; gap:8px;
+  padding:8px;
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  max-width:92vw;
+  overflow-x:auto;
+  transition: opacity .15s ease;
+}
+#filmstrip::-webkit-scrollbar{ display:none; }
+#filmstrip:empty{ display:none; }
+.film-thumb{
+  position:relative;
+  width:104px; height:70px;
+  flex:0 0 auto;
+  border-radius:6px;
+  overflow:hidden;
+  cursor:pointer;
+  border:2px solid transparent;
+  background-size:cover;
+  background-position:center;
+  transition:border-color .15s ease, transform .15s ease;
+}
+.film-thumb:hover{ transform:translateY(-2px); border-color:var(--blue); }
+.film-thumb span{
+  position:absolute; left:0; right:0; bottom:0;
+  padding:4px 7px 5px;
+  font-size:.66rem; font-weight:500;
+  color:#fff;
+  background:linear-gradient(to top, rgba(0,0,0,.75), transparent);
+}
+.film-thumb .film-arrow{
+  position:absolute; top:6px; right:6px;
+  width:18px; height:18px;
+  background:rgba(255,255,255,.9);
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+}
+.film-thumb .film-arrow svg{
+  width:10px; height:10px;
+  fill:var(--blue);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width:640px){
+  #place-card{ top:10px; left:10px; max-width:70vw; }
+  #place-card-main{ padding:9px 12px; }
+  #property-name{ font-size:.88rem; }
+  #place-card-crumb{ padding:0 10px; }
+  #compass{ top:10px; right:10px; width:40px; height:40px; }
+  #icon-rail{ top:60px; right:10px; gap:6px; }
+  .icon-btn{ width:36px; height:36px; }
+  #zoom-stack{ bottom:96px; right:10px; }
+  #map-panel{ top:104px; right:10px; width:min(62vw, 210px); }
+  #filmstrip{ bottom:10px; padding:6px; gap:6px; }
+  .film-thumb{ width:84px; height:58px; }
+  .wayfinder-hotspot{ width:38px; height:38px; }
+}
